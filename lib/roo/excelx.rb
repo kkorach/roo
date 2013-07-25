@@ -111,6 +111,7 @@ class Roo::Excelx < Roo::GenericSpreadsheet
     @s_attribute = Hash.new # TODO: ggf. wieder entfernen nur lokal benoetigt
     @comment = Hash.new
     @comments_read = Hash.new
+    @raw_cell = Hash.new
   end
 
   def method_missing(m,*args)
@@ -258,6 +259,13 @@ class Roo::Excelx < Roo::GenericSpreadsheet
     attribute2format(s).to_s
   end
 
+  def raw_cell(row,col,sheet=nil)
+    sheet ||= @default_sheet
+    read_cells(sheet) unless @cells_read[sheet]
+    row,col = normalize(row,col)
+    return @raw_cell[sheet][[row,col]]
+  end
+
   # returns an array of sheet names in the spreadsheet
   def sheets
     @workbook_doc.xpath("//xmlns:sheet").map do |sheet|
@@ -377,6 +385,8 @@ class Roo::Excelx < Roo::GenericSpreadsheet
     @excelx_value[sheet][key] = excelx_value
     @s_attribute[sheet] ||= {}
     @s_attribute[sheet][key] = s_attribute
+    @raw_cell[sheet] ||= {}
+    @raw_cell[sheet][key] = v
   end
 
   # read all cells in the selected sheet

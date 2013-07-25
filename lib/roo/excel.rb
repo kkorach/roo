@@ -38,6 +38,7 @@ class Roo::Excel < Roo::GenericSpreadsheet
     @header_line = 1
     @cells_read = Hash.new
     @fonts = Hash.new
+    @raw_cell = Hash.new
   end
 
   def encoding=(codepage)
@@ -127,6 +128,14 @@ class Roo::Excel < Roo::GenericSpreadsheet
     @cell[sheet].inspect
   end
 
+  # returns the raw value of an excel cell
+  def raw_cell(row,col,sheet=nil)
+    sheet ||= @default_sheet
+    read_cells(sheet) unless @cells_read[sheet]
+    row,col = normalize(row,col)
+    return @raw_cell[sheet][[row,col]]
+  end
+
   private
 
   # converts name of a sheet to index (0,1,2,..)
@@ -197,6 +206,8 @@ class Roo::Excel < Roo::GenericSpreadsheet
     @cell[sheet]    = {} unless @cell[sheet]
     @fonts[sheet] = {} unless @fonts[sheet]
     @fonts[sheet][key] = font
+    @raw_cell[sheet] = {} unless @raw_cell[sheet]
+    @raw_cell[sheet][key] = v
 
     @cell[sheet][key] =
       case value_type
